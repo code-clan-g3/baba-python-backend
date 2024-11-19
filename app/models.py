@@ -18,6 +18,7 @@ class User(db.Model):
 class Chat(db.Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('user.id'), nullable=False)
+    chat_name = db.Column(db.String(), unique=False, nullable=True)
     thread_id = db.Column(db.String(),  nullable=False)
     user = db.relationship('User', backref='chats')
 
