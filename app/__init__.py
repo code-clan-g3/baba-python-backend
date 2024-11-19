@@ -1,7 +1,7 @@
 from flask import Flask
 
 from app.api_routes import api_bp
-from app.extensions import db, jwt, bcrypt
+from app.extensions import db, jwt, bcrypt, cors
 
 
 def create_app():
@@ -12,6 +12,7 @@ def create_app():
     db.init_app(app)
     jwt.init_app(app)
     bcrypt.init_app(app)
+    cors.init_app(app)
 
     app.register_blueprint(api_bp, url_prefix='/')
 
