@@ -33,12 +33,15 @@ class ChatThread(Resource):
 
 @chat_ns.route('/<string:thread_id>')
 class Chats(Resource):
+    @chat_ns.expect(parser)
+    @jwt_required()
     def get(self, thread_id):
         messages =  client.beta.threads.messages.list(thread_id)
         print(messages.to_dict())
         return messages.to_dict()
 
-    @chat_ns.expect(new_message_model)
+    @jwt_required()
+    @chat_ns.expect(new_message_model, parser)
     def post(self, thread_id):
         new_message = request.get_json()['message']
         message = client.beta.threads.messages.create(
@@ -65,6 +68,7 @@ class Chats(Resource):
 
 @chat_ns.route("/get_threads")
 class GetChats(Resource):
+    @chat_ns.expect(parser)
     @jwt_required()
     def get(self):
         user_id = get_jwt_identity()
