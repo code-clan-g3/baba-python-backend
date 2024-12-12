@@ -3,11 +3,33 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restx import Namespace, Resource
 
 from app.api_routes.v1 import wait_for_run_completion
-from app.api_routes.v1.schema.chat_docs import new_message_model
+from app.api_routes.v1.schema.chat_docs import new_message_model, parser
 from app.extensions import client, db
 from app.models import Chat, User
 
 chat_ns = Namespace('chat', description='Chat operations')
+
+@chat_ns.route("/thread")
+class ChatThread(Resource):
+    @jwt_required()
+    @chat_ns.expect(parser)
+    def get(self):
+        user_id = get_jwt_identity()
+        new_thread = client.beta.threads.create(
+            metadata={
+                "user_id": str(user_id),
+            }
+        )
+
+        new_chat = Chat(
+            user_id=user_id,
+            thread_id=new_thread.id,
+        )
+        db.session.add(new_chat)
+        db.session.commit()
+
+        return {"message": "Thread created", "thread_id": str(new_thread.id)}, 201
+
 
 @chat_ns.route('/<string:thread_id>')
 class Chats(Resource):
